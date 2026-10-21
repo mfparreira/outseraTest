@@ -1,0 +1,166 @@
+name: CI - Testes automatizados
+
+# Executa a cada commit (push em qualquer branch), em pull requests e sob demanda.
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      run_mobile:
+        description: 'Executar o job mobile (placeholder: testes mobile não configurados)'
+        type: boolean
+        default: false
+
+# Um novo commit na mesma branch cancela a execução anterior ainda em andamento.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  CI: true
+  NODE_VERSION: '22'
+
+jobs:
+  # ------------------------------------------------------------------
+  # Testes de API (Playwright / APIRequestContext)
+  # Duas suítes em paralelo: API de exemplo local e JSONPlaceholder.
+  # ------------------------------------------------------------------
+  api:
+    name: API - ${{ matrix.suite.name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false # uma suíte falhar não cancela as outras
+      matrix:
+        suite:
+          - name: local
+            test: npm test
+            summary: npm run summary
+            reports: reports
+          - name: jsonplaceholder
+            test: npm run test:jsonplaceholder
+            summary: npm run summary:jsonplaceholder
+            reports: reports-jsonplaceholder
+    defaults:
+      run:
+        working-directory: api-tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: api-tests/package-lock.json
+
+      - name: Instalar dependências
+        run: npm ci
+
+      # Testes de API usam apenas HTTP: não precisam instalar navegadores.
+      - name: Executar testes de API
+        run: ${{ matrix.suite.test }}
+
+      - name: Gerar relatório em texto
+        if: always()
+        continue-on-error: true
+        run: ${{ matrix.suite.summary }}
+
+      - name: Publicar relatórios
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-${{ matrix.suite.name }}-reports
+          path: api-tests/${{ matrix.suite.reports }}
+          if-no-files-found: warn
+          retention-days: 30
+
+  # ------------------------------------------------------------------
+  # Testes E2E (Cucumber + Playwright + TypeScript) contra o SauceDemo
+  # ------------------------------------------------------------------
+  e2e:
+    name: E2E - Cucumber + Playwright
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: e2e-tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: e2e-tests/package-lock.json
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Instalar Chromium (com dependências do sistema)
+        run: npx playwright install --with-deps chromium
+
+      - name: Executar testes E2E
+        run: npm run test:ci
+
+      # Relatório HTML/JSON/JUnit e screenshots de cada cenário
+      - name: Publicar relatórios e evidências
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-reports
+          path: e2e-tests/reports
+          if-no-files-found: warn
+          retention-days: 30
+
+  # ------------------------------------------------------------------
+  # Testes mobile: NÃO executados neste projeto (fora do escopo).
+  # O job existe para documentar o ponto de integração: só roda se alguém
+  # disparar o workflow manualmente com run_mobile=true; em commits aparece
+  # como "skipped". Veja mobile-tests/README.md.
+  # ------------------------------------------------------------------
+  mobile:
+    name: Mobile - não executado
+    if: github.event_name == 'workflow_dispatch' && inputs.run_mobile
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Testes mobile não configurados. Veja mobile-tests/README.md"
+
+  # ------------------------------------------------------------------
+  # Relatório consolidado: roda sempre, mesmo se algum teste falhar
+  # ------------------------------------------------------------------
+  report:
+    name: Relatório consolidado
+    if: always()
+    needs: [api, e2e, mobile]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Baixar relatórios dos jobs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: '*-reports'
+          path: artifacts
+
+      - name: Gerar relatório (resumo da execução + arquivo .txt/.md)
+        env:
+          API_RESULT: ${{ needs.api.result }}
+          E2E_RESULT: ${{ needs.e2e.result }}
+          MOBILE_RESULT: ${{ needs.mobile.result }}
+        run: node ci/build-report.js artifacts pipeline-report
+
+      - name: Publicar relatório consolidado
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-report
+          path: pipeline-report
+          retention-days: 30

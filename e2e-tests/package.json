@@ -1,0 +1,22 @@
+{
+  "name": "e2e-saucedemo-cucumber",
+  "version": "1.0.0",
+  "description": "Testes E2E com Playwright e Cucumber no SauceDemo",
+  "main": "index.js",
+  "scripts": {
+    "test": "cucumber-js",
+    "test:ci": "cucumber-js --format junit:reports/cucumber-junit.xml",
+    "report": "cucumber-js --format html:reports/cucumber-report.html"
+  },
+  "devDependencies": {
+    "@cucumber/cucumber": "^10.0.0",
+    "@playwright/test": "^1.40.0",
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.0"
+  },
+  "overrides": {
+    "tmp": "^0.2.3",
+    "uuid": ">=11.1.1"
+  }
+}

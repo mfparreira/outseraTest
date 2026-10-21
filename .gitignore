@@ -1,0 +1,8 @@
+node_modules/
+reports/
+reports-jsonplaceholder/
+test-results/
+playwright-report/
+artifacts/
+pipeline-report/
+.playwright-artifacts/

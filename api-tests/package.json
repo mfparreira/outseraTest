@@ -1,0 +1,19 @@
+{
+  "name": "api-tests-playwright",
+  "version": "1.0.0",
+  "description": "Testes automatizados de API com Playwright (positivos e negativos; GET, POST, PUT, DELETE)",
+  "private": true,
+  "scripts": {
+    "start:api": "node server/server.js",
+    "test": "playwright test",
+    "report": "playwright show-report reports/html",
+    "summary": "node scripts/generate-summary.js",
+    "consolidated": "node scripts/generate-consolidated.js",
+    "test:jsonplaceholder": "playwright test -c playwright.jsonplaceholder.config.js",
+    "summary:jsonplaceholder": "node scripts/generate-summary.js reports-jsonplaceholder",
+    "report:jsonplaceholder": "playwright show-report reports-jsonplaceholder/html"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.50.0"
+  }
+}
