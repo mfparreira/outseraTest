@@ -1,0 +1,9 @@
+{
+  "$id": "login-response.schema.json",
+  "title": "Resposta de login",
+  "type": "object",
+  "required": ["token"],
+  "properties": {
+    "token": { "type": "string", "minLength": 10 }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "$id": "post.schema.json",
+  "title": "Post (JSONPlaceholder)",
+  "type": "object",
+  "required": ["userId", "id", "title", "body"],
+  "additionalProperties": false,
+  "properties": {
+    "userId": { "type": "integer", "minimum": 1 },
+    "id": { "type": "integer", "minimum": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "body": { "type": "string" }
+  }
+}

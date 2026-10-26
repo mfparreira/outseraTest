@@ -1,0 +1,13 @@
+{
+  "$id": "user.schema.json",
+  "title": "Usuário (API local)",
+  "type": "object",
+  "required": ["id", "name", "email", "age"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "integer", "minimum": 1 },
+    "name": { "type": "string", "minLength": 1 },
+    "email": { "type": "string", "format": "email" },
+    "age": { "type": "integer", "minimum": 0, "maximum": 150 }
+  }
+}

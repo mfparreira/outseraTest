@@ -1,0 +1,65 @@
+==============================================================================
+RELATORIO DE PERFORMANCE (k6) - perfil: LOAD
+==============================================================================
+Alvo           : http://localhost:3000
+Perfil         : 500 usuarios simultaneos | subida 30s | patamar 5m | descida 30s
+Pausa (think)  : 1-3 s | escrita em 30% das iteracoes
+Limites        : p95 < 500 ms | p99 < 1000 ms | erros < 1% | vazao > 400 req/s
+Duracao real   : 362.4 s
+
+VOLUME E VAZAO
+------------------------------------------------------------------------------
+Requisicoes HTTP : 257316  (710.01 req/s em media)
+Iteracoes        : 82522  (227.70 /s)
+VUs (maximo)     : 500
+Usuarios criados : 25084
+Dados recebidos  : 82.88 MB | enviados: 45.62 MB
+
+DISPONIBILIDADE
+------------------------------------------------------------------------------
+Requisicoes com falha  : 0.000 %
+Checks aprovados       : 100.000 %  (473028 ok / 0 falhas)
+Erros de negocio       : 0.000 %
+Falhas de login        : 0
+Iteracoes descartadas  : 0
+
+LATENCIA (ms)
+------------------------------------------------------------------------------
+Metrica                           avg      med      p90      p95      p99       max
+Total (http_req_duration)        0.38     0.24     0.46     0.66     3.35     40.80
+Espera do servidor (TTFB)        0.32     0.18     0.39     0.59     3.22     40.75
+Conexao (connecting)             0.00     0.00     0.00     0.00     0.00     11.05
+Envio                            0.02     0.01     0.03     0.04     0.10     25.79
+Recebimento                      0.04     0.03     0.07     0.09     0.18     20.72
+Bloqueio (blocked)               0.00     0.00     0.01     0.01     0.03     11.14
+Jornada (sem pausa final)        1.61     1.00     2.00     3.00    12.00     96.00
+
+POR ENDPOINT (http_req_duration, ms)
+------------------------------------------------------------------------------
+Endpoint               reqs      avg      p90      p95      p99       max
+login                   500     0.67     0.94     1.16     2.22      9.65
+list                  82522     0.48     0.55     0.77     5.72     40.80
+get                   82522     0.36     0.43     0.62     3.59     30.55
+create                25084     0.37     0.46     0.62     2.43     37.48
+update                25084     0.32     0.41     0.56     1.89     23.39
+delete                25084     0.25     0.32     0.45     1.31     24.91
+
+THRESHOLDS (criterios de aprovacao)
+------------------------------------------------------------------------------
+[OK]     login_failures  count==0
+[OK]     http_req_duration{endpoint:list}  p(95)<500
+[OK]     business_errors  rate<0.01
+[OK]     http_req_duration  p(95)<500
+[OK]     http_req_duration  p(99)<1000
+[OK]     http_req_duration{endpoint:login}  p(95)<500
+[OK]     http_reqs  rate>400
+[OK]     http_req_duration{endpoint:get}  p(95)<300
+[OK]     http_req_duration{endpoint:create}  p(95)<800
+[OK]     http_req_failed  rate<0.30
+[OK]     http_req_failed  rate<0.01
+[OK]     http_req_duration{endpoint:update}  p(95)<800
+[OK]     http_req_duration{endpoint:delete}  p(95)<800
+[OK]     checks  rate>0.99
+
+RESULTADO: APROVADO (todos os thresholds atendidos)
+==============================================================================

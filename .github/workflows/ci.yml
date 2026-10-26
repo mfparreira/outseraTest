@@ -11,6 +11,22 @@ on:
         description: 'Executar o job mobile (placeholder: testes mobile não configurados)'
         type: boolean
         default: false
+      run_load:
+        description: 'Executar também o teste de carga completo (k6, perfil load)'
+        type: boolean
+        default: false
+      load_vus:
+        description: 'Carga: usuários virtuais simultâneos'
+        default: '500'
+      load_ramp_up:
+        description: 'Carga: rampa de subida (ex.: 30s)'
+        default: '30s'
+      load_hold:
+        description: 'Carga: tempo sustentado no pico (ex.: 5m)'
+        default: '5m'
+  # Teste de carga completo semanal (segunda, 06:00 UTC), além do smoke em todo commit
+  schedule:
+    - cron: '0 6 * * 1'
 
 # Um novo commit na mesma branch cancela a execução anterior ainda em andamento.
 concurrency:
@@ -23,6 +39,13 @@ permissions:
 env:
   CI: true
   NODE_VERSION: '22'
+  # Configuração do ambiente sob teste. Para outro ambiente, defina em
+  # Settings > Secrets and variables > Actions (Variables: E2E_BASE_URL...; Secrets: E2E_PASSWORD).
+  # Os valores abaixo são as contas públicas de demonstração do SauceDemo.
+  E2E_BASE_URL: ${{ vars.E2E_BASE_URL || 'https://www.saucedemo.com' }}
+  E2E_STANDARD_USER: ${{ vars.E2E_STANDARD_USER || 'standard_user' }}
+  E2E_LOCKED_USER: ${{ vars.E2E_LOCKED_USER || 'locked_out_user' }}
+  E2E_PASSWORD: ${{ secrets.E2E_PASSWORD || 'secret_sauce' }}
 
 jobs:
   # ------------------------------------------------------------------
@@ -106,13 +129,165 @@ jobs:
       - name: Executar testes E2E
         run: npm run test:ci
 
-      # Relatório HTML/JSON/JUnit e screenshots de cada cenário
+      # Relatório HTML/JSON/JUnit, screenshots de cada cenário e Playwright Trace dos que falharam
       - name: Publicar relatórios e evidências
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: e2e-reports
-          path: e2e-tests/reports
+          path: |
+            e2e-tests/reports
+            !e2e-tests/reports/a11y
+          if-no-files-found: warn
+          retention-days: 30
+
+  # ------------------------------------------------------------------
+  # Cypress: mini-suíte com cenários representativos (Chrome já vem no runner)
+  # ------------------------------------------------------------------
+  cypress:
+    name: E2E - Cypress
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: cypress-tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: cypress-tests/package-lock.json
+
+      - name: Cache do binário do Cypress
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-${{ runner.os }}-${{ hashFiles('cypress-tests/package-lock.json') }}
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Verificar tipos (TypeScript)
+        run: npm run typecheck
+
+      - name: Executar testes Cypress
+        run: npm run test:ci
+
+      - name: Publicar relatórios e screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-reports
+          path: cypress-tests/reports
+          if-no-files-found: warn
+          retention-days: 30
+
+  # ------------------------------------------------------------------
+  # Acessibilidade (axe-core): violações critical/serious reprovam o job
+  # ------------------------------------------------------------------
+  a11y:
+    name: Acessibilidade - axe
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: e2e-tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: e2e-tests/package-lock.json
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Instalar Chromium (com dependências do sistema)
+        run: npx playwright install --with-deps chromium
+
+      - name: Executar testes de acessibilidade
+        run: npm run test:a11y
+
+      - name: Publicar relatórios (HTML, JSON, JUnit, traces de falha)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a11y-reports
+          path: e2e-tests/reports/a11y
+          if-no-files-found: warn
+          retention-days: 30
+
+  # ------------------------------------------------------------------
+  # Performance (k6) - smoke: roda em todo commit (1 min, 2 usuários).
+  # Valida o script, a API e os thresholds de latência/erro a baixo custo.
+  # ------------------------------------------------------------------
+  perf-smoke:
+    name: Performance - smoke (k6)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: load-tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - uses: grafana/setup-k6-action@v1
+
+      - name: Executar perfil smoke
+        run: bash scripts/run.sh smoke
+
+      - name: Publicar evidências
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-smoke-reports
+          path: load-tests/reports/smoke
+          if-no-files-found: warn
+          retention-days: 30
+
+  # ------------------------------------------------------------------
+  # Performance (k6) - carga completa. Custa ~7 min de runner e satura 2 vCPUs,
+  # por isso NÃO roda em todo commit: apenas agendado (semanal) ou sob demanda.
+  # Usuários, rampa e duração são parâmetros do workflow_dispatch.
+  # ------------------------------------------------------------------
+  perf-load:
+    name: Performance - carga (k6)
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.run_load)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: load-tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - uses: grafana/setup-k6-action@v1
+
+      - name: Executar perfil de carga
+        env:
+          LOAD_VUS: ${{ inputs.load_vus || '500' }}
+          LOAD_RAMP_UP: ${{ inputs.load_ramp_up || '30s' }}
+          LOAD_HOLD: ${{ inputs.load_hold || '5m' }}
+        run: bash scripts/run.sh load -e VUS="$LOAD_VUS" -e RAMP_UP="$LOAD_RAMP_UP" -e HOLD="$LOAD_HOLD"
+
+      - name: Publicar evidências
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-load-reports
+          path: load-tests/reports/load
           if-no-files-found: warn
           retention-days: 30
 
@@ -135,7 +310,7 @@ jobs:
   report:
     name: Relatório consolidado
     if: always()
-    needs: [api, e2e, mobile]
+    needs: [api, e2e, cypress, a11y, perf-smoke, perf-load, mobile]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -155,6 +330,10 @@ jobs:
         env:
           API_RESULT: ${{ needs.api.result }}
           E2E_RESULT: ${{ needs.e2e.result }}
+          CYPRESS_RESULT: ${{ needs.cypress.result }}
+          A11Y_RESULT: ${{ needs.a11y.result }}
+          PERF_SMOKE_RESULT: ${{ needs.perf-smoke.result }}
+          PERF_LOAD_RESULT: ${{ needs.perf-load.result }}
           MOBILE_RESULT: ${{ needs.mobile.result }}
         run: node ci/build-report.js artifacts pipeline-report
 

@@ -1,0 +1,11 @@
+{
+  "$id": "user-list.schema.json",
+  "title": "Lista de usuários (API local)",
+  "type": "object",
+  "required": ["total", "data"],
+  "additionalProperties": false,
+  "properties": {
+    "total": { "type": "integer", "minimum": 0 },
+    "data": { "type": "array", "items": { "$ref": "user.schema.json" } }
+  }
+}

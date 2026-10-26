@@ -1,0 +1,172 @@
+{
+  "profile": "load",
+  "target": "http://localhost:3000",
+  "config": {
+    "vus": 500,
+    "rampUp": "20s",
+    "hold": "1m",
+    "rampDown": "10s",
+    "think": [
+      0,
+      0
+    ],
+    "writeRatio": 0.3,
+    "p95Ms": 500,
+    "p99Ms": 1000,
+    "maxErrorRate": 0.01,
+    "minRps": 400
+  },
+  "durationSec": 90.06120247,
+  "requests": 545619,
+  "throughputRps": 6058.313513876848,
+  "iterations": 175814,
+  "vusMax": 500,
+  "failedRate": 0,
+  "checksRate": 1,
+  "businessErrorRate": 0,
+  "latency": {
+    "avg": 61.74548827765742,
+    "med": 56.600656,
+    "p90": 118.7274812,
+    "p95": 157.3831689999999,
+    "p99": 204.45677185999992,
+    "max": 358.438239
+  },
+  "ttfb": {
+    "avg": 61.28414163043346,
+    "med": 56.315893,
+    "p90": 117.45256020000001,
+    "p95": 156.1516738,
+    "p99": 202.8794659799995,
+    "max": 358.391233
+  },
+  "endpoints": {
+    "login": {
+      "count": 500,
+      "avg": 41.05797819200001,
+      "med": 33.761381,
+      "p90": 84.10578030000002,
+      "p95": 110.89313745,
+      "p99": 153.72518691999997,
+      "max": 223.858661
+    },
+    "list": {
+      "count": 175814,
+      "avg": 61.72247464606474,
+      "med": 56.515597,
+      "p90": 118.52258850000011,
+      "p95": 157.93717005000002,
+      "p99": 204.21345128,
+      "max": 334.99742
+    },
+    "get": {
+      "count": 175814,
+      "avg": 61.710666991541935,
+      "med": 56.581959,
+      "p90": 118.92562100000004,
+      "p95": 157.20517180000002,
+      "p99": 204.31377285999994,
+      "max": 358.438239
+    },
+    "create": {
+      "count": 52707,
+      "avg": 61.480270274080716,
+      "med": 56.602655,
+      "p90": 117.6406618,
+      "p95": 156.464525,
+      "p99": 203.88421254000002,
+      "max": 335.724783
+    },
+    "update": {
+      "count": 52707,
+      "avg": 61.805700061605236,
+      "med": 56.679863,
+      "p90": 118.30937780000004,
+      "p95": 157.2350228,
+      "p99": 205.8928759600001,
+      "max": 292.771963
+    },
+    "delete": {
+      "count": 52707,
+      "avg": 61.99605222871666,
+      "med": 56.849739,
+      "p90": 120.24550740000002,
+      "p95": 157.4276560999999,
+      "p99": 204.83428806000006,
+      "max": 342.111634
+    }
+  },
+  "thresholds": [
+    {
+      "metric": "http_req_duration{endpoint:list}",
+      "expr": "p(95)<500",
+      "ok": true
+    },
+    {
+      "metric": "http_req_duration{endpoint:login}",
+      "expr": "p(95)<500",
+      "ok": true
+    },
+    {
+      "metric": "http_req_duration{endpoint:create}",
+      "expr": "p(95)<800",
+      "ok": true
+    },
+    {
+      "metric": "http_req_duration{endpoint:get}",
+      "expr": "p(95)<300",
+      "ok": true
+    },
+    {
+      "metric": "http_reqs",
+      "expr": "rate>400",
+      "ok": true
+    },
+    {
+      "metric": "http_req_duration{endpoint:delete}",
+      "expr": "p(95)<800",
+      "ok": true
+    },
+    {
+      "metric": "business_errors",
+      "expr": "rate<0.01",
+      "ok": true
+    },
+    {
+      "metric": "http_req_duration{endpoint:update}",
+      "expr": "p(95)<800",
+      "ok": true
+    },
+    {
+      "metric": "login_failures",
+      "expr": "count==0",
+      "ok": true
+    },
+    {
+      "metric": "http_req_duration",
+      "expr": "p(95)<500",
+      "ok": true
+    },
+    {
+      "metric": "http_req_duration",
+      "expr": "p(99)<1000",
+      "ok": true
+    },
+    {
+      "metric": "checks",
+      "expr": "rate>0.99",
+      "ok": true
+    },
+    {
+      "metric": "http_req_failed",
+      "expr": "rate<0.01",
+      "ok": true
+    },
+    {
+      "metric": "http_req_failed",
+      "expr": "rate<0.30",
+      "ok": true
+    }
+  ],
+  "passed": true
+}

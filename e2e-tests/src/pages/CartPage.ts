@@ -1,11 +1,9 @@
 import { Page, Locator } from '@playwright/test';
 
 export class CartPage {
-  readonly page: Page;
   readonly checkoutButton: Locator;
 
-  constructor(page: Page) {
-    this.page = page;
+  constructor(readonly page: Page) {
     this.checkoutButton = page.locator('[data-test="checkout"]');
   }
 

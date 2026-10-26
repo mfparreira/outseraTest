@@ -1,0 +1,14 @@
+{
+  "$id": "comment.schema.json",
+  "title": "Comentário (JSONPlaceholder)",
+  "type": "object",
+  "required": ["postId", "id", "name", "email", "body"],
+  "additionalProperties": false,
+  "properties": {
+    "postId": { "type": "integer", "minimum": 1 },
+    "id": { "type": "integer", "minimum": 1 },
+    "name": { "type": "string" },
+    "email": { "type": "string", "format": "email" },
+    "body": { "type": "string" }
+  }
+}

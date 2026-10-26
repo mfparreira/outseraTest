@@ -1,0 +1,172 @@
+{
+  "profile": "smoke",
+  "target": "http://localhost:3000",
+  "config": {
+    "vus": 2,
+    "rampUp": "10s",
+    "hold": "40s",
+    "rampDown": "10s",
+    "think": [
+      1,
+      3
+    ],
+    "writeRatio": 0.3,
+    "p95Ms": 300,
+    "p99Ms": 600,
+    "maxErrorRate": 0.005,
+    "minRps": 1
+  },
+  "durationSec": 60.165663201,
+  "requests": 193,
+  "throughputRps": 3.2078097328575974,
+  "iterations": 54,
+  "vusMax": 2,
+  "failedRate": 0,
+  "checksRate": 1,
+  "businessErrorRate": 0,
+  "latency": {
+    "avg": 0.4308223367875647,
+    "med": 0.361488,
+    "p90": 0.6732028,
+    "p95": 0.7410577999999997,
+    "p99": 1.0104838399999911,
+    "max": 2.441576
+  },
+  "ttfb": {
+    "avg": 0.35699673575129537,
+    "med": 0.301603,
+    "p90": 0.5474804,
+    "p95": 0.6236963999999999,
+    "p99": 0.9360481999999912,
+    "max": 2.193245
+  },
+  "endpoints": {
+    "login": {
+      "count": 2,
+      "avg": 1.5614295,
+      "med": 1.5614295,
+      "p90": 2.2655467,
+      "p95": 2.3535613499999997,
+      "p99": 2.4239730699999997,
+      "max": 2.441576
+    },
+    "list": {
+      "count": 54,
+      "avg": 0.6099285740740741,
+      "med": 0.586834,
+      "p90": 0.7245108,
+      "p95": 0.7587243499999999,
+      "p99": 1.2240360099999994,
+      "max": 1.526763
+    },
+    "get": {
+      "count": 54,
+      "avg": 0.32864701851851863,
+      "med": 0.296653,
+      "p90": 0.47821250000000004,
+      "p95": 0.5295009999999998,
+      "p99": 0.7259550399999997,
+      "max": 0.868277
+    },
+    "create": {
+      "count": 21,
+      "avg": 0.4729235238095238,
+      "med": 0.432027,
+      "p90": 0.727508,
+      "p95": 0.750242,
+      "p99": 0.9026996000000002,
+      "max": 0.940814
+    },
+    "update": {
+      "count": 21,
+      "avg": 0.3890959523809524,
+      "med": 0.352286,
+      "p90": 0.49618,
+      "p95": 0.651475,
+      "p99": 0.9027670000000002,
+      "max": 0.96559
+    },
+    "delete": {
+      "count": 21,
+      "avg": 0.28625009523809525,
+      "med": 0.254901,
+      "p90": 0.3221,
+      "p95": 0.520492,
+      "p99": 0.7789448000000003,
+      "max": 0.843558
+    }
+  },
+  "thresholds": [
+    {
+      "metric": "http_req_duration{endpoint:delete}",
+      "expr": "p(95)<480",
+      "ok": true
+    },
+    {
+      "metric": "http_reqs",
+      "expr": "rate>1",
+      "ok": true
+    },
+    {
+      "metric": "http_req_duration{endpoint:login}",
+      "expr": "p(95)<300",
+      "ok": true
+    },
+    {
+      "metric": "http_req_duration{endpoint:get}",
+      "expr": "p(95)<180",
+      "ok": true
+    },
+    {
+      "metric": "http_req_duration",
+      "expr": "p(95)<300",
+      "ok": true
+    },
+    {
+      "metric": "http_req_duration",
+      "expr": "p(99)<600",
+      "ok": true
+    },
+    {
+      "metric": "login_failures",
+      "expr": "count==0",
+      "ok": true
+    },
+    {
+      "metric": "business_errors",
+      "expr": "rate<0.01",
+      "ok": true
+    },
+    {
+      "metric": "checks",
+      "expr": "rate>0.99",
+      "ok": true
+    },
+    {
+      "metric": "http_req_failed",
+      "expr": "rate<0.005",
+      "ok": true
+    },
+    {
+      "metric": "http_req_failed",
+      "expr": "rate<0.30",
+      "ok": true
+    },
+    {
+      "metric": "http_req_duration{endpoint:create}",
+      "expr": "p(95)<480",
+      "ok": true
+    },
+    {
+      "metric": "http_req_duration{endpoint:update}",
+      "expr": "p(95)<480",
+      "ok": true
+    },
+    {
+      "metric": "http_req_duration{endpoint:list}",
+      "expr": "p(95)<300",
+      "ok": true
+    }
+  ],
+  "passed": true
+}

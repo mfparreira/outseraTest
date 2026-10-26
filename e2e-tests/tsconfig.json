@@ -6,6 +6,12 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
-  }
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true
+  },
+  "include": [
+    "src",
+    "a11y",
+    "playwright.a11y.config.ts"
+  ]
 }

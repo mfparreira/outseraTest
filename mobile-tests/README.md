@@ -12,5 +12,5 @@ como *skipped* em cada execução. Ele existe para mostrar onde os testes mobile
    - subir um emulador Android com `reactivecircus/android-emulator-runner`;
    - instalar o app (APK) e iniciar o servidor Appium;
    - executar a suíte e publicar `reports/` como artefato `mobile-reports`.
-3. Trocar `if: ${{ false }}` por uma condição real (por exemplo, apenas em `push` na `main`, já que
+3. Trocar a condição do job (`github.event_name == 'workflow_dispatch' && inputs.run_mobile`) por uma condição real (por exemplo, apenas em `push` na `main`, já que
    emulador é lento) e incluir a leitura de `mobile-reports` em `ci/build-report.js`.

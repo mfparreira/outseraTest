@@ -5,7 +5,7 @@ Funcionalidade: Fluxo de Checkout no E-commerce
   Para concluir a minha compra
 
   Contexto:
-    Dado que o usuário está autenticado no sistema com "standard_user" e "secret_sauce"
+    Dado que o usuário está autenticado no sistema com "${STANDARD_USER}" e "${PASSWORD}"
     E adiciona o produto "Sauce Labs Backpack" ao carrinho
     E navega até o carrinho de compras e clica em checkout
 

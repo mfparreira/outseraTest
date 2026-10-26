@@ -1,14 +1,13 @@
 import { setWorldConstructor, World, IWorldOptions } from '@cucumber/cucumber';
-import { Browser, BrowserContext, Page } from '@playwright/test';
+import { BrowserContext, Page } from '@playwright/test';
 
+/** Estado de UM cenário. O Browser é compartilhado e fica em support/browser.ts. */
 export interface CustomWorld extends World {
-  browser?: Browser;
   context?: BrowserContext;
   page?: Page;
 }
 
 export class CustomWorldConstructor extends World implements CustomWorld {
-  browser?: Browser;
   context?: BrowserContext;
   page?: Page;
 

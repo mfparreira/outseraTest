@@ -96,8 +96,11 @@ inexistente retornam **500**; DELETE em ID inexistente retorna **200**; OPTIONS 
 Os testes de método inválido ainda aceitam 404 ou 405 (o status exato é registrado como anotação
 "status observado" no relatório; depois de rodar, fixe o valor visto).
 
-`headers.spec.js` valida, para GET/POST/PUT/PATCH/DELETE, `Content-Type: application/json; charset=utf-8`
-e `Access-Control-Allow-Origin: *`; demais headers (cache-control, etag, etc.) são anotados no relatório.
+`headers.spec.js` valida, para GET/POST/PUT/PATCH/DELETE, status e `Content-Type: application/json; charset=utf-8`,
+e para o GET também `x-content-type-options`, `access-control-allow-credentials`, `vary`, `cache-control`, `etag`
+e `x-ratelimit-*` (valores conferidos com `curl -i`). O servidor **só envia `Access-Control-Allow-Origin`
+quando a requisição traz o header `Origin`**; sem ele, o header não existe (há um teste para isso).
+Demais headers são anotados no relatório.
 
 ### Relatório consolidado das duas suítes
 
@@ -106,3 +109,16 @@ npm test
 npm run test:jsonplaceholder
 npm run consolidated      # gera reports/RELATORIO-CONSOLIDADO.txt
 ```
+
+## Validação de contrato (JSON Schema / Ajv)
+
+Além dos asserts funcionais, endpoints representativos têm o **formato** da resposta validado contra JSON Schema
+(`contracts/schemas/*.json`, validados com Ajv em modo estrito + `ajv-formats`): tipos, campos obrigatórios, formatos
+(e-mail), `additionalProperties: false` (pega vazamento de campos, como senha) e o formato único das respostas de erro.
+
+- `tests/contract.spec.js` (API local): login, lista, busca por id, POST (+ header `Location`), PUT e as respostas de erro 401/404/405/422,
+  mais um **controle negativo** que prova que o validador de fato detecta campo ausente, tipo errado, formato inválido e campo extra.
+- `tests-jsonplaceholder/contract.spec.js`: `/posts` (todos os itens), `/posts/1`, `/posts/1/comments`, POST e PUT.
+- Uso nos testes: `expect(body).toMatchContract('user.schema.json')` (matcher em `contracts/matchers.js`; erros listam o caminho exato da violação).
+
+Para um novo endpoint: criar o schema em `contracts/schemas/` e usar o matcher; nada mais precisa ser registrado.

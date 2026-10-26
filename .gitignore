@@ -6,3 +6,6 @@ playwright-report/
 artifacts/
 pipeline-report/
 .playwright-artifacts/
+cypress-tests/reports/
+cypress-tests/cypress/screenshots/
+cypress-tests/cypress/videos/

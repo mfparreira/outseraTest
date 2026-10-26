@@ -1,0 +1,28 @@
+====================================================================================================
+ANALISE TEMPORAL DO TESTE DE CARGA (janelas de 10s)
+====================================================================================================
+Maquina: 2 nucleo(s). CPU do servidor/K6 em % de UM nucleo (pode passar de 100%); CPU total em % da maquina.
+
+ t(s)   VUs   req/s  lat.med  lat.max  falha%   sonda  CPU srv  CPU k6  CPU tot  RSS MB
+----------------------------------------------------------------------------------------------------
+    0     1       1      0.9      1.3    0.00     3.5        0       1        9    48.4
+   10     2       4      0.4      0.6    0.00     1.9        0       1        1    53.6
+   20     2       4      0.4      0.5    0.00     2.4        0       1        1    54.5
+   30     2       3      0.4      0.6    0.00     1.7        0       1        1    54.7
+   40     2       4      0.4      0.6    0.00     1.5        0       1        2    54.9
+   50     2       3      0.4      0.6    0.00     1.5        0       1        1    54.9
+   60     1       0        -        -       -     2.5        0       0        4    54.9
+(latencias em ms: lat.med = media da janela medida pelo K6; sonda = GET /api/health medido por fora)
+
+OBSERVACOES AUTOMATICAS
+----------------------------------------------------------------------------------------------------
+- Pico de vazao: 4 req/s na janela de 20s (2 VUs).
+- Maior latencia media de janela: 0.9 ms em 0s (1 VUs).
+- CPU maxima do servidor: 0% de um nucleo em 0s (pico instantaneo 2%).
+- CPU maxima do K6: 1% de um nucleo em 10s.
+- CPU total maxima da maquina: 9% em 0s.
+- Memoria maxima do servidor: 54.9 MB (inicio: 48.4 MB).
+- Nenhuma janela com falhas acima de 0,5%.
+- Sem degradacao: a latencia media nunca passou de 5x a linha de base (0.4 ms).
+- CPU total da maquina ficou abaixo de 85%: o gerador de carga nao foi o limitante.
+====================================================================================================

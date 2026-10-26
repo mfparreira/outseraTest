@@ -1,0 +1,9 @@
+{
+  "$id": "error.schema.json",
+  "title": "Erro padrão da API local",
+  "type": "object",
+  "required": ["error"],
+  "properties": {
+    "error": { "type": "string", "minLength": 1 }
+  }
+}

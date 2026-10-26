@@ -6,12 +6,16 @@
   "scripts": {
     "test": "cucumber-js",
     "test:ci": "cucumber-js --format junit:reports/cucumber-junit.xml",
-    "report": "cucumber-js --format html:reports/cucumber-report.html"
+    "report": "cucumber-js --format html:reports/cucumber-report.html",
+    "test:a11y": "playwright test -c playwright.a11y.config.ts"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@cucumber/cucumber": "^10.0.0",
     "@playwright/test": "^1.40.0",
     "@types/node": "^20.0.0",
+    "axe-core": "^4.14.0",
+    "dotenv": "^18.0.9",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.0"
   },

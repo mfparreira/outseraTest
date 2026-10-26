@@ -1,0 +1,9 @@
+{
+  "_instrucoes": [
+    "Baseline de violações de acessibilidade ACEITAS temporariamente. A suíte falha em qualquer violação critical/serious fora desta lista.",
+    "Cada entrada exige: page (nome da jornada), rule (id da regra do axe) e reason (justificativa; ex.: aplicação de terceiros, ticket de correção).",
+    "Entradas que deixam de ocorrer aparecem como aviso 'baseline obsoleto' no relatório e devem ser removidas.",
+    "Está vazio de propósito: preencha somente depois de ver o resultado real da execução contra a aplicação."
+  ],
+  "issues": []
+}

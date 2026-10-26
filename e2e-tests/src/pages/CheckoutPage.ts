@@ -1,7 +1,6 @@
 import { Page, Locator } from '@playwright/test';
 
 export class CheckoutPage {
-  readonly page: Page;
   readonly firstNameInput: Locator;
   readonly lastNameInput: Locator;
   readonly postalCodeInput: Locator;
@@ -10,8 +9,7 @@ export class CheckoutPage {
   readonly errorMessage: Locator;
   readonly completeHeader: Locator;
 
-  constructor(page: Page) {
-    this.page = page;
+  constructor(readonly page: Page) {
     this.firstNameInput = page.locator('[data-test="firstName"]');
     this.lastNameInput = page.locator('[data-test="lastName"]');
     this.postalCodeInput = page.locator('[data-test="postalCode"]');
@@ -21,10 +19,11 @@ export class CheckoutPage {
     this.completeHeader = page.locator('.complete-header');
   }
 
-  async fillInformation(firstName?: string, lastName?: string, postalCode?: string) {
-    if (firstName) await this.firstNameInput.fill(firstName);
-    if (lastName) await this.lastNameInput.fill(lastName);
-    if (postalCode) await this.postalCodeInput.fill(postalCode);
+  /** Campo vazio ("") permanece vazio: serve para testar obrigatoriedade. */
+  async fillInformation(firstName: string, lastName: string, postalCode: string) {
+    await this.firstNameInput.fill(firstName);
+    await this.lastNameInput.fill(lastName);
+    await this.postalCodeInput.fill(postalCode);
   }
 
   async clickContinue() {
@@ -33,13 +32,5 @@ export class CheckoutPage {
 
   async clickFinish() {
     await this.finishButton.click();
-  }
-
-  async getErrorMessage(): Promise<string> {
-    return (await this.errorMessage.textContent()) || '';
-  }
-
-  async getConfirmationMessage(): Promise<string> {
-    return (await this.completeHeader.textContent()) || '';
   }
 }

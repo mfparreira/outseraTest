@@ -1,26 +1,27 @@
 import { Page, Locator } from '@playwright/test';
 
 export class ProductsPage {
-  readonly page: Page;
   readonly title: Locator;
   readonly cartBadge: Locator;
+  readonly cartLink: Locator;
 
-  constructor(page: Page) {
-    this.page = page;
+  constructor(readonly page: Page) {
     this.title = page.locator('.title');
     this.cartBadge = page.locator('.shopping_cart_badge');
+    this.cartLink = page.locator('.shopping_cart_link');
   }
 
-  async getTitleText(): Promise<string> {
-    return (await this.title.textContent()) || '';
+  /** "Sauce Labs Backpack" -> botão data-test="add-to-cart-sauce-labs-backpack" */
+  addToCartButton(productName: string): Locator {
+    const slug = productName.toLowerCase().replace(/\s+/g, '-');
+    return this.page.locator(`[data-test="add-to-cart-${slug}"]`);
   }
 
   async addProductToCart(productName: string) {
-    const formattedName = productName.toLowerCase().replace(/\s+/g, '-');
-    await this.page.click(`[data-test="add-to-cart-${formattedName}"]`);
+    await this.addToCartButton(productName).click();
   }
 
   async goToCart() {
-    await this.page.click('.shopping_cart_link');
+    await this.cartLink.click();
   }
 }

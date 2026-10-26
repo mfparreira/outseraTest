@@ -1,0 +1,25 @@
+====================================================================================================
+ANALISE TEMPORAL DO TESTE DE CARGA (janelas de 30s)
+====================================================================================================
+Maquina: 2 nucleo(s). CPU do servidor/K6 em % de UM nucleo (pode passar de 100%); CPU total em % da maquina.
+
+ t(s)   VUs   req/s  lat.med  lat.max  falha%   sonda  CPU srv  CPU k6  CPU tot  RSS MB
+----------------------------------------------------------------------------------------------------
+    0   500    6730     46.1     89.8    0.00     3.6       36     163       99    86.5
+   30   500    5803     78.4     88.5    0.00     3.0       33     165      100    87.6
+   60   169    5663     42.8     74.9    0.00     2.5       32     162      100    87.9
+   90    65    4348      4.9      5.3    0.00     5.5       11     140       86    87.9
+(latencias em ms: lat.med = media da janela medida pelo K6; sonda = GET /api/health medido por fora)
+
+OBSERVACOES AUTOMATICAS
+----------------------------------------------------------------------------------------------------
+- Pico de vazao: 6730 req/s na janela de 0s (500 VUs).
+- Maior latencia media de janela: 78.4 ms em 30s (500 VUs).
+- CPU maxima do servidor: 36% de um nucleo em 0s (pico instantaneo 48%).
+- CPU maxima do K6: 165% de um nucleo em 30s.
+- CPU total maxima da maquina: 100% em 30s.
+- Memoria maxima do servidor: 87.9 MB (inicio: 86.5 MB).
+- Nenhuma janela com falhas acima de 0,5%.
+- Sem degradacao: a latencia media nunca passou de 5x a linha de base (42.8 ms).
+- ATENCAO: CPU total acima de 85% em 4 janela(s). Como o K6 e o servidor dividem a maquina, parte da latencia pode ser do gerador de carga.
+====================================================================================================
