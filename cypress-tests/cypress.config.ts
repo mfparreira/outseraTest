@@ -50,6 +50,11 @@ export default defineConfig({
             })),
           })),
         };
+        for (const run of r.runs) {
+          for (const t of run.tests.filter((x) => x.state === 'failed')) {
+            console.log(`\n[FALHA] ${run.spec.relative} › ${t.title.join(' › ')}\n${t.displayError || '(sem mensagem)'}\n`);
+          }
+        }
         fs.mkdirSync('reports', { recursive: true });
         fs.writeFileSync(path.join('reports', 'cypress-summary.json'), JSON.stringify(summary, null, 2));
       });

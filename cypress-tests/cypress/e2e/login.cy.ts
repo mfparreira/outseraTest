@@ -4,7 +4,9 @@ import { ProductsPage } from '../support/pages/ProductsPage';
 describe('Login', () => {
   const login = new LoginPage();
 
-  beforeEach(() => login.open());
+   beforeEach(() => {
+    login.open();
+  });
 
   it('usuário válido acessa o catálogo de produtos', () => {
     login.login(Cypress.env('standardUser'), Cypress.env('password'));
