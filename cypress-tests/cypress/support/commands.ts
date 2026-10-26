@@ -22,7 +22,8 @@ Cypress.Commands.add('loginAs', (user = Cypress.env('standardUser') as string) =
     },
     { cacheAcrossSpecs: true }
   );
-  cy.visit('/inventory.html');
+  cy.visit('/inventory.html', { failOnStatusCode: false });
+  cy.get('.title').should('have.text', 'Products');
 });
 
 export {};
